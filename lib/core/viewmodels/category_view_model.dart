@@ -19,23 +19,43 @@ class CategoryViewModel extends StateNotifier<List<Category>> {
   }
   
   Future<void> loadCategories() async {
-    final categories = await _repository.getAllCategories();
-    state = categories;
+    try {
+      final categories = await _repository.getAllCategories();
+      state = categories;
+    } catch (e) {
+      print('Error loading categories: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> addCategory(Category category) async {
-    await _repository.saveCategory(category);
-    await loadCategories();
+    try {
+      await _repository.saveCategory(category);
+      await loadCategories();
+    } catch (e) {
+      print('Error adding category: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> updateCategory(Category category) async {
-    await _repository.saveCategory(category);
-    await loadCategories();
+    try {
+      await _repository.saveCategory(category);
+      await loadCategories();
+    } catch (e) {
+      print('Error updating category: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> deleteCategory(String id) async {
-    await _repository.deleteCategory(id);
-    await loadCategories();
+    try {
+      await _repository.deleteCategory(id);
+      await loadCategories();
+    } catch (e) {
+      print('Error deleting category: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Category? getCategoryById(String id) {

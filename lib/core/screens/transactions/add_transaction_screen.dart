@@ -224,6 +224,37 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 style: TextStyle(fontSize: 16),
               ),
             ),
+            
+            ElevatedButton(
+              onPressed: () async {
+                final notificationService = ref.read(notificationServiceProvider);
+                
+                // Create a test transaction to schedule
+                final testTransaction = Transaction(
+                  title: 'Test Notification',
+                  amount: 10.0,
+                  type: TransactionType.expense,
+                  categoryId: _selectedCategoryId!,
+                  date: DateTime.now(),
+                );
+                
+                // Schedule a notification for 30 seconds later
+                await notificationService.scheduleRecurringNotification(
+                  transaction: testTransaction,
+                  recurringPeriod: 'Daily', // This will use the 1-minute interval
+                );
+                
+                await notificationService.enableNotificationLogging();
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Test notification scheduled for 1 minute from now'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              child: const Text('Test Notification'),
+            ),
           ],
         ),
       ),
@@ -299,14 +330,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       
       ref.read(transactionViewModelProvider.notifier).addTransaction(transaction);
       
-      // if (_isRecurring) {
-      //   // Set up recurring notification
-      //   final notificationService = ref.read(notificationServiceProvider);
-      //   notificationService.scheduleRecurringNotification(
-      //     transaction: transaction,
-      //     recurringPeriod: _recurringPeriod,
-      //   );
-      // }
+      if (_isRecurring) {
+        // Set up recurring notification
+        final notificationService = ref.read(notificationServiceProvider);
+        notificationService.scheduleRecurringNotification(
+          transaction: transaction,
+          recurringPeriod: _recurringPeriod,
+        );
+      }
       
       Navigator.of(context).pop();
       

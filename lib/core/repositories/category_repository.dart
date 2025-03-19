@@ -1,55 +1,78 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:myfinance/core/models/category.dart';
+import 'package:myfinance/core/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CategoryRepository {
-  static const String _categoriesKey = 'categories';
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  String? get _userId => _auth.currentUser?.uid;
+  
   Future<List<Category>> getAllCategories() async {
-    final prefs = await SharedPreferences.getInstance();
-    final categoriesJson = prefs.getStringList(_categoriesKey);
-    
-    if (categoriesJson == null || categoriesJson.isEmpty) {
-      // Return default categories if none exist
+    if (_userId == null) {
       return _getDefaultCategories();
     }
     
-    return categoriesJson
-        .map((json) => Category.fromJson(jsonDecode(json)))
-        .toList();
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('categories')
+          .get();
+      
+      final categories = snapshot.docs
+          .map((doc) => Category.fromJson(doc.data()))
+          .toList();
+      
+      // Return default categories if none exist
+      if (categories.isEmpty) {
+        final defaults = _getDefaultCategories();
+        // Save default categories to Firestore
+        for (var category in defaults) {
+          await saveCategory(category);
+        }
+        return defaults;
+      }
+      
+      return categories;
+    } catch (e) {
+      print('Error getting categories: $e');
+      return _getDefaultCategories();
+    }
   }
 
   Future<void> saveCategory(Category category) async {
-    final prefs = await SharedPreferences.getInstance();
-    final categories = await getAllCategories();
+    if (_userId == null) return;
     
-    final existingIndex = categories.indexWhere((c) => c.id == category.id);
-    
-    if (existingIndex >= 0) {
-      categories[existingIndex] = category;
-    } else {
-      categories.add(category);
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('categories')
+          .doc(category.id)
+          .set(category.toJson());
+    } catch (e) {
+      print('Error saving category: $e');
+      throw Exception('Failed to save category');
     }
-    
-    final categoriesJson = categories
-        .map((category) => jsonEncode(category.toJson()))
-        .toList();
-    
-    await prefs.setStringList(_categoriesKey, categoriesJson);
   }
 
   Future<void> deleteCategory(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final categories = await getAllCategories();
+    if (_userId == null) return;
     
-    categories.removeWhere((category) => category.id == id);
-    
-    final categoriesJson = categories
-        .map((category) => jsonEncode(category.toJson()))
-        .toList();
-    
-    await prefs.setStringList(_categoriesKey, categoriesJson);
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('categories')
+          .doc(id)
+          .delete();
+    } catch (e) {
+      print('Error deleting category: $e');
+      throw Exception('Failed to delete category');
+    }
   }
 
   List<Category> _getDefaultCategories() {

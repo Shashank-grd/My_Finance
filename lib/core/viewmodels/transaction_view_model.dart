@@ -19,23 +19,43 @@ class TransactionViewModel extends StateNotifier<List<Transaction>> {
   }
   
   Future<void> loadTransactions() async {
-    final transactions = await _repository.getAllTransactions();
-    state = transactions;
+    try {
+      final transactions = await _repository.getAllTransactions();
+      state = transactions;
+    } catch (e) {
+      print('Error loading transactions: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> addTransaction(Transaction transaction) async {
-    await _repository.saveTransaction(transaction);
-    await loadTransactions();
+    try {
+      await _repository.saveTransaction(transaction);
+      await loadTransactions();
+    } catch (e) {
+      print('Error adding transaction: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> updateTransaction(Transaction transaction) async {
-    await _repository.saveTransaction(transaction);
-    await loadTransactions();
+    try {
+      await _repository.saveTransaction(transaction);
+      await loadTransactions();
+    } catch (e) {
+      print('Error updating transaction: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   Future<void> deleteTransaction(String id) async {
-    await _repository.deleteTransaction(id);
-    await loadTransactions();
+    try {
+      await _repository.deleteTransaction(id);
+      await loadTransactions();
+    } catch (e) {
+      print('Error deleting transaction: $e');
+      // Handle error - could show a message to user
+    }
   }
   
   double getTotalIncome() {

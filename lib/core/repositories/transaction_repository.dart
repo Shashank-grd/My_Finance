@@ -1,48 +1,62 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'package:myfinance/core/models/transaction.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myfinance/core/models/transaction.dart' as Ts;
 
 class TransactionRepository {
-  static const String _transactionsKey = 'transactions';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  String? get _userId => _auth.currentUser?.uid;
 
-  Future<List<Transaction>> getAllTransactions() async {
-    final prefs = await SharedPreferences.getInstance();
-    final transactionsJson = prefs.getStringList(_transactionsKey) ?? [];
+  Future<List<Ts.Transaction>> getAllTransactions() async {
+    if (_userId == null) return [];
     
-    return transactionsJson
-        .map((json) => Transaction.fromJson(jsonDecode(json)))
-        .toList();
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('transactions')
+          .orderBy('date', descending: true)
+          .get();
+      
+      return snapshot.docs
+          .map((doc) => Ts.Transaction.fromJson(doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error getting transactions: $e');
+      return [];
+    }
   }
 
-  Future<void> saveTransaction(Transaction transaction) async {
-    final prefs = await SharedPreferences.getInstance();
-    final transactions = await getAllTransactions();
+  Future<void> saveTransaction(Ts.Transaction transaction) async {
+    if (_userId == null) return;
     
-    final existingIndex = transactions.indexWhere((t) => t.id == transaction.id);
-    
-    if (existingIndex >= 0) {
-      transactions[existingIndex] = transaction;
-    } else {
-      transactions.add(transaction);
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('transactions')
+          .doc(transaction.id)
+          .set(transaction.toJson());
+    } catch (e) {
+      print('Error saving transaction: $e');
+      throw Exception('Failed to save transaction');
     }
-    
-    final transactionsJson = transactions
-        .map((transaction) => jsonEncode(transaction.toJson()))
-        .toList();
-    
-    await prefs.setStringList(_transactionsKey, transactionsJson);
   }
 
   Future<void> deleteTransaction(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final transactions = await getAllTransactions();
+    if (_userId == null) return;
     
-    transactions.removeWhere((transaction) => transaction.id == id);
-    
-    final transactionsJson = transactions
-        .map((transaction) => jsonEncode(transaction.toJson()))
-        .toList();
-    
-    await prefs.setStringList(_transactionsKey, transactionsJson);
+    try {
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('transactions')
+          .doc(id)
+          .delete();
+    } catch (e) {
+      print('Error deleting transaction: $e');
+      throw Exception('Failed to delete transaction');
+    }
   }
 } 

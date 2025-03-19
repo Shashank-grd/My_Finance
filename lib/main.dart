@@ -32,13 +32,17 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-   // _initializeApp();
+    _initializeApp();
   }
 
-  // Future<void> _initializeApp() async {
-  //   // Initialize notification service
-  //   await ref.read(notificationServiceProvider).initialize();
-  // }
+  Future<void> _initializeApp() async {
+    try {
+      final notificationService = ref.read(notificationServiceProvider);
+      await notificationService.initialize();
+    } catch (e) {
+      print('Error initializing app: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
