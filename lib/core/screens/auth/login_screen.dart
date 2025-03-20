@@ -126,19 +126,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: TextStyle(fontSize: 16),
                           ),
                   ),
-                  const SizedBox(height: 16),
-                  
-                  OutlinedButton.icon(
-                    onPressed: _isLoading ? null : _signInWithGoogle,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    icon: Image.asset(
-                      'assets/google_logo.png',
-                      height: 24,
-                    ),
-                    label: const Text('Sign in with Google'),
-                  ),
                   const SizedBox(height: 24),
                   
                   Row(
@@ -191,22 +178,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-    
-    try {
-      await ref.read(authServiceProvider).signInWithGoogle();
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 } 

@@ -5,6 +5,8 @@ import 'package:myfinance/core/screens/transactions/add_transaction_screen.dart'
 import 'package:myfinance/core/screens/categories/categories_screen.dart';
 import 'package:myfinance/core/viewmodels/transaction_view_model.dart';
 import 'package:myfinance/core/widgets/spending_chart.dart';
+import 'package:myfinance/core/services/notification_service.dart';
+import 'package:myfinance/core/models/transaction.dart' as Ts;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -106,6 +108,37 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Expanded(
             child: SpendingChart(),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final notificationService = ref.read(notificationServiceProvider);
+
+              // Send an immediate test notification
+              await notificationService.enableNotificationLogging();
+
+              // Create a test transaction with current timestamp
+              final testTransaction = Ts.Transaction(
+                title: "Test Direct Notification",
+                amount: 25.0,
+                type: Ts.TransactionType.expense,
+                categoryId: "31f912d4-278d-41f8-a4ec-a9348fa762f1",
+                date: DateTime.now(),
+              );
+
+              // Schedule it
+              await notificationService.scheduleRecurringNotification(
+                transaction: testTransaction,
+                recurringPeriod: 'Daily',
+              );
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Test notification sent! Check your device notifications'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            },
+            child: const Text('Test Notification Now'),
           ),
         ],
       ),

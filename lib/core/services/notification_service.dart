@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart' ;
 import 'package:myfinance/core/models/transaction.dart' as Ts;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,6 +23,7 @@ class NotificationService {
   Future<void> initialize() async {
     // Initialize timezones for scheduling
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
 
     // Request permission for notifications
     await _fcm.requestPermission(
@@ -103,16 +105,31 @@ class NotificationService {
     }
   }
 
+
   Future<void> scheduleRecurringNotification({
     required Ts.Transaction transaction,
     required String recurringPeriod,
   }) async {
     if (_userId == null) return;
-
     final notificationId = transaction.id.hashCode;
-    final scheduledDate = _calculateNextNotificationDate(transaction.date, recurringPeriod);
-
-    // Save recurring notification to Firestore
+    
+    // Use proper time calculation
+    final scheduledDate = _calculateNextNotificationDate(recurringPeriod);
+    await _notificationsPlugin.show(
+      notificationId,
+      'Test Immediate Notification',
+      '${transaction.title}: \$${transaction.amount}',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'recurring_transactions',
+          'Recurring Transactions',
+          channelDescription: 'Notifications for recurring transactions',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+    );
+    // Save to Firestore as before
     await _firestore
         .collection('users')
         .doc(_userId)
@@ -128,7 +145,6 @@ class NotificationService {
           'active': true,
         });
 
-    // Schedule local notification
     await _notificationsPlugin.zonedSchedule(
       notificationId,
       'Upcoming Transaction',
@@ -139,33 +155,29 @@ class NotificationService {
           'recurring_transactions',
           'Recurring Transactions',
           channelDescription: 'Notifications for recurring transactions',
+          importance: Importance.high,
+          priority: Priority.high,
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: _getDateTimeComponents(recurringPeriod),
     );
-
   }
 
-  DateTime _calculateNextNotificationDate(DateTime startDate, String recurringPeriod) {
-    // For testing purposes - use 1 minute intervals instead of days
-    final now = DateTime.now();
+  DateTime _calculateNextNotificationDate(String recurringPeriod) {
+    final now = tz.TZDateTime.now(tz.local);
     
     switch (recurringPeriod) {
       case 'Daily':
-        // return now.add(const Duration(days: 1));
-        return now.add(const Duration(minutes: 1)); // For testing
+        return now.add(const Duration(days: 1));
       case 'Weekly':
-        // return now.add(const Duration(days: 7));
-        return now.add(const Duration(minutes: 2)); // For testing
+        return now.add(const Duration(days: 7));
       case 'Monthly':
-        // return DateTime(now.year, now.month + 1, now.day);
-        return now.add(const Duration(minutes: 3)); // For testing
+        return DateTime(now.year, now.month + 1, now.day);
       case 'Yearly':
-        // return DateTime(now.year + 1, now.month, now.day);
-        return now.add(const Duration(minutes: 5)); // For testing
+        return DateTime(now.year + 1, now.month, now.day);
       default:
-        return now.add(const Duration(minutes: 1));
+        return now.add(const Duration(days: 1));
     }
   }
 
