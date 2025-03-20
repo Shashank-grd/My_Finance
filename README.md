@@ -4,8 +4,8 @@
 **MyFinance** is a Flutter-based personal finance tracker that helps users manage their income and expenses effectively. Users can add transactions, categorize them, view financial history, and generate basic reports. The app also includes authentication, data synchronization, and notifications for due payments.
 
 <p align="center">
-  <img src="https://github.com/Shashank-grd/blog_app_with_deeplink/blob/main/screenshots/finance.png?raw=true" alt="example1" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://github.com/Shashank-grd/blog_app_with_deeplink/blob/main/screenshots/finance1.png" alt="example2" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/Shashank-grd/My_Finance/blob/main/screenshots/finance.png" alt="example1" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/Shashank-grd/My_Finance/blob/main/screenshots/finance1.png" alt="example2" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 </p>
 
@@ -13,8 +13,8 @@
 <br><br>
 
 <p align="center">
-  <img src="https://github.com/Shashank-grd/blog_app_with_deeplink/blob/main/screenshots/finance2.png" alt="example4" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://github.com/Shashank-grd/blog_app_with_deeplink/blob/main/screenshots/finance3.png" alt="example5" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/Shashank-grd/My_Finance/blob/main/screenshots/finance2.png" alt="example4" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/Shashank-grd/My_Finance/blob/main/screenshots/finance3.png" alt="example5" width="200" height="400">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </p>
 
 
